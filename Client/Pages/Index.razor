@@ -1,0 +1,54 @@
+﻿@page "/"
+@inject IBlogRepository blogRepository
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 col-sm-12">
+            <!--loop-list-->
+            <div class="loop-metro post-module-1 row">
+                @if (Blogs != null)
+                {
+                    if (Blogs.Count > 0)
+                    {
+                        foreach (var item in Blogs)
+                        {
+                            <article class="col-lg-4 col-md-6 col-sm-12 mb-30 text-right">
+                                <div class="post-thumb position-relative">
+                                    <div class="thumb-overlay img-hover-slide border-radius-5 position-relative"
+                             style="background-image: url(@item.Photo)">
+                                        <a class="img-link" href="/Blog/Detail/@item.Id"></a>
+                                        <div class="post-content-overlay">
+                                            <h6 class="post-title">
+                                                <a class="color-white" href="/Blog/Detail/@item.Id">@item.Title</a>
+                                            </h6>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </article>
+                        }
+                    }
+                    else
+                    {
+                        <p>هیچ مقاله ای یافت نشد</p>
+                    }
+                }
+                else
+                {
+                    <FormLoading />
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+    [CascadingParameter]
+    public MainLayout Layout { get; set; }
+
+    List<IndexBlogDTO> Blogs;
+    protected override async Task OnInitializedAsync()
+    {
+        Blogs = Layout.Blogs;
+
+    }
+}

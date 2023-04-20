@@ -1,0 +1,121 @@
+﻿<footer>
+    <!-- Footer Start-->
+    <div class="footer-area fix pt-50 background11 text-right" dir="rtl">
+        <div class="container">
+            <div class="row d-flex justify-content-between">
+                <div class="col-lg-4 col-md-6 mb-lg-0 mb-30">
+                    <div class="sidebar-widget widget-latest-posts mb-30">
+                        <div class="widget-header position-relative mb-30">
+                            <h5 class="widget-title mt-5 mb-30 color-white">آخرین مقالات</h5>
+                            <div class="letter-background">W</div>
+                        </div>
+                        <div class="post-block-list post-module-1 post-module-5">
+                            @if (lastBlogs != null && lastBlogs.Count > 0)
+                            {
+                                <ul class="list-post">
+                                    @foreach (var item in lastBlogs)
+                                    {
+                                    <li class="mb-30">
+                                        <div class="d-flex">
+                                            <div class="post-thumb d-flex ml-15 border-radius-5 img-hover-scale">
+                                                <a class="color-white" href="/Blog/Detail/@item.Id">
+                                                    <img src="@item.Photo" alt="">
+                                                </a>
+                                            </div>
+                                            <div class="post-content media-body">
+                                                <h6 class="post-title mb-10 text-limit-2-row">
+                                                    <a class="color-white" href="/Blog/Detail/@item.Id">@item.Title</a></h6>
+                                                <div class="entry-meta meta-1 font-x-small color-grey">
+                                                    <span class="hit-count has-dot">@item.Likes پسندیده</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    }
+                                </ul>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+                   <div class="col-lg-4 col-md-6 mb-lg-0 mb-30">
+                    <div class="sidebar-widget widget-latest-posts mb-30">
+                        <div class="widget-header position-relative mb-30">
+                            <h5 class="widget-title mt-5 mb-30 color-white">محبوب ترین ها</h5>
+                            <div class="letter-background">W</div>
+                        </div>
+                        <div class="post-block-list post-module-1 post-module-5">
+                            @if (popularList != null && popularList.Count > 0)
+                            {
+                                <ul class="list-post">
+                                    @foreach (var item in popularList)
+                                    {
+                                    <li class="mb-30">
+                                        <div class="d-flex">
+                                            <div class="post-thumb d-flex ml-15 border-radius-5 img-hover-scale">
+                                                <a class="color-white" href="/Blog/Detail/@item.Id">
+                                                    <img src="@item.Photo" alt="">
+                                                </a>
+                                            </div>
+                                            <div class="post-content media-body">
+                                                <h6 class="post-title mb-10 text-limit-2-row"><a class="color-white" href="/Blog/Detail/@item.Id">@item.Title</a></h6>
+                                                <div class="entry-meta meta-1 font-x-small color-grey">
+                                                    <span class="hit-count has-dot">@item.Likes پسندیده</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    }
+                                </ul>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="sidebar-widget widget_categories mb-30">
+                        <div class="widget-header position-relative mb-30">
+                            <h5 class="widget-title mt-5 mb-30 color-white">لینک های مفید</h5>
+                        </div>
+                        <div class="post-block-list post-module-1 post-module-5">
+                            <ul class="float-right ml-30 font-medium">
+                                <li class="cat-item cat-item-2"><a href="/Register">ثبت نام</a></li>
+                                <li class="cat-item cat-item-3"><a href="/Login">ورود</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- footer-bottom aera -->
+    <div class="footer-bottom-area background11">
+        <div class="container">
+            <div class="footer-border pt-30 pb-30">
+                <div class="row d-flex align-items-center justify-content-between">
+                    <div class="col-lg-6 text-right">
+                        <div class="footer-menu mt-lg-0 mt-3">
+                            <ul class="font-medium m-0">
+                                <li><a href="/About">درباره ما</a></li>
+                                <li><a href="/Contact">تماس با ما</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="footer-menu float-lg-left mt-lg-0 mt-3 text-white-50 font-medium">
+                            تمامی حقوق برای این وب سایت محفوظ است
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End-->
+</footer>
+@code {
+    [Parameter]
+    public List<LastBlogDTO> lastBlogs { get; set; }
+    [Parameter]
+    public List<PopularDTO> popularList { get; set; }
+}

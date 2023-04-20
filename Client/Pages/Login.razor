@@ -1,0 +1,99 @@
+﻿@page "/Login"
+
+@inject IAuthRepository authRepo
+@inject IUserAuthService userService
+@inject UserStateService userState
+@inject NavigationManager navigationManager
+@inject GenerateNewToken tokenService
+@inject IJSRuntime js
+@inject ProtectPassword pass
+@*@attribute [Authorize(Roles = "user")]*@
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-xl-6 col-md-10">
+            <div class="login_wrap widget-taber-content shadow p-30 background-white border-radius-5">
+                <div class="padding_eight_all bg-white" dir="rtl">
+                    <div class="heading_s1">
+                        <h3 class="mb-30 text-center">ورود</h3>
+                        @if (ShowLoading)
+                        {
+                            <div>
+                                <FormLoading />
+                            </div>
+                        }
+                        <AuthorizeView>
+                            <Authorized>
+                                <p class="text-center alert alert-success">ورود موفقیت آمیز</p>
+                            </Authorized>
+                            <NotAuthorized>
+                                @if (ShowError)
+                                {
+                                    <p class="text-center alert alert-danger">اطلاعات وارد شده صحیح نیست</p>
+                                }
+                            </NotAuthorized>
+                        </AuthorizeView>
+                    </div>
+                    <EditForm Model="User" OnValidSubmit="LoginUser">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="form-group">
+                            <input type="text" required="" class="form-control" name="email" @bind-value="User.Email" placeholder="ایمیل">
+                        </div>
+                        <div class="form-group">
+                            <input class="form-control" required="" type="password" name="password" @bind-value="User.Password" placeholder="کلمه عبور">
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-fill-out btn-block border rounded" name="login">ورود</button>
+                        </div>
+                    </EditForm>
+                    <div class="text-muted text-center">حساب کاربری ندارید ؟ <NavLink href="/register">ثبت نام کنید</NavLink></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    UserData User;
+    bool ShowError = false;
+    bool ShowLoading = false;
+    [CascadingParameter] public Task<AuthenticationState> authenticaionState { get; set; }
+    protected override void OnInitialized()
+    {
+        User = new UserData();
+
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        var authState = await authenticaionState;
+
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            navigationManager.NavigateTo("/");
+        }
+    }
+    private async Task LoginUser()
+    {
+        tokenService.Dispose();
+        ShowLoading = true;
+        var response = await authRepo.Login(User);
+        var authentication = await authenticaionState;
+        await Task.Delay(200);
+        ShowLoading = false;
+        if (response.Status)
+        {
+            tokenService.Initiate();
+            // ===
+            await userService.Login(response);
+            userState.SetUserInfo(authentication.User.Claims.ToList());
+            navigationManager.NavigateTo("/");
+        }
+        else
+        {
+            // ===
+            ShowError = true;
+            Console.WriteLine(response.Message);
+        }
+    }
+}

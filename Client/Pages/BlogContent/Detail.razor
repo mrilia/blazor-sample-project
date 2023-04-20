@@ -1,0 +1,274 @@
+﻿@page "/blog/detail/{Id:long}"
+@inject IBlogRepository blogRepository
+@inject AuthenticationStateProvider authStateProvider
+<div class="container">
+    <div class="row text-center">
+        <div class="col-lg-10 col-md-12 col-sm-12 m-auto" dir="rtl">
+            @if (blogDetail != null && blogDetail.Blog != null)
+            {
+                <div class="entry-header entry-header-1 mb-30 text-right">
+                    <h1 class="post-title ">
+                        <a href="/Blog/Detail/@blogDetail.Blog.Id">@blogDetail.Blog.Title</a>
+                    </h1>
+                    <div class="single-social-share clearfix ">
+                        <div class="entry-meta meta-1 font-large float-right mt-10">
+                            <span class="hit-count">
+                                <i class="fa fa-comment-alt"></i>
+                                @if (blogDetail.Blog.Comments != null)
+                                {
+                                    <span class="pr-1 pl-1">@blogDetail.Blog.Comments.Count</span>
+
+
+                                }
+                                else
+                                {
+                                    <span class="pr-1 pl-1">0</span>
+                                }
+                                <span>نظر</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="single-social-share clearfix ">
+                        <div class="entry-meta meta-1 font-large float-right mt-10">
+                            <span class="hit-count">
+                                <i class="fa fa-heart"></i>
+                                @blogDetail.Blog.Like
+                                <span>پسندیده</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <figure class="single-thumnail">
+                    <div class="featured-slider-1 border-radius-5 p-3">
+                        <div class="featured-slider-1-items">
+                            <div class="slider-single">
+                                @if (blogDetail.Blog.Photo != null)
+                                {
+                                    <img src="@blogDetail.Blog.Photo" class="rounded" alt="">
+                                }
+                                else
+                                {
+                                    <img src="/image/sample.png" class="rounded" alt="">
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                </figure>
+                <div class="entry-main-content">
+                    @if (blogDetail.Blog.Description != null)
+                    {
+                        <p>@blogDetail.Blog.Description</p>
+                    }
+                </div>
+                <div class="entry-main-content">
+                    @if (ShowLikeBtn)
+                    {
+                        <button class="btn-like" @onclick="LikeBlog">
+                            <i class="fa fa-heart text-danger"></i>
+                            پسندیدن
+                        </button>
+                    }
+                    else
+                    {
+                        <FormLoading />
+                    }
+
+                </div>
+                @if (LikeMessage != null)
+                {
+                    <p class="text-center">@LikeMessage</p>
+
+                }
+            }
+
+
+            <div class="bt-1 border-color-1 mt-30 mb-30"></div>
+            <!--related posts-->
+            @if (blogDetail != null && blogDetail.LastBlogs.Count > 0)
+            {
+                <div class="related-posts">
+                    <h3 class="mb-30">آخرین مقاله ها</h3>
+                    <div class="loop-list">
+                        @foreach (var item in blogDetail.LastBlogs)
+                        {
+                            <article class="row mb-30">
+                                <div class="col-md-4">
+                                    <div class="post-thumb position-relative thumb-overlay">
+                                        <div class="img-hover-slide border-radius-5 position-relative" style="background-image: url(@item.Photo)">
+                                            <a class="img-link" href="/Blog/Detail/@item.Id"></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 text-right">
+                                    <div class="post-content">
+                                        <h5 class="post-title">
+                                            <a href="/Blog/Detail/@item.Id">@item.Title</a>
+                                        </h5>
+                                        <div class="entry-meta meta-1 font-small color-grey mt-15 mb-15">
+                                            <span class="post-on"><i class="fa fa-heart text-danger"></i> @item.Like پسندیده </span>
+                                        </div>
+                                        <p class="font-medium">@item.Description</p>
+                                    </div>
+                                </div>
+                            </article>
+                        }
+
+                    </div>
+                </div>
+            }
+
+            @if (blogDetail != null && blogDetail.Blog.Comments.Count > 0)
+            {
+                <div class="comments-area">
+                    <h3 class="mb-30">لیست نظرات کاربران</h3>
+
+                    @foreach (var item in blogDetail.Blog.Comments)
+                    {
+                        <div class="comment-list">
+                            <div class="single-comment justify-content-between d-flex">
+                                <div class="user justify-content-between d-flex">
+                                    <div class="thumb">
+                                        <img src="assets/imgs/author.png" alt="">
+                                    </div>
+                                    <div class="desc">
+                                        <h4>@item.Title</h4>
+                                        <p class="comment pr-4 text-right">
+                                            @item.Description
+                                        </p>
+                                        <div class="d-flex justify-content-between pr-4">
+                                            <div class="d-flex align-items-center">
+                                                <h5>
+                                                    <a href="#">@item.User.Name @item.User.LastName</a>
+                                                </h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            }
+            <!--comment form-->
+            <AuthorizeView>
+                <Authorized Context="authorizeContext">
+                   <div>
+                        <div class="comment-form">
+                        <h3 class="mb-30">ارسال نظر</h3>
+                        @if (ResultMessage != null)
+                        {
+                            <p class="text-success text-center">@ResultMessage</p>
+                        }
+
+                        <EditForm class="form-contact comment_form" Model="Comment" OnValidSubmit="SendComment">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <input class="form-control" @bind-value="Comment.Title" name="title" id="title" type="text" placeholder="عنوان">
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <textarea class="form-control w-100" name="description" id="description" @bind="Comment.Description" cols="30" rows="9" placeholder="متن"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="button button-contactForm">ثبت</button>
+                            </div>
+                        </EditForm>
+
+                    </div>
+                   </div>
+                </Authorized>
+                <NotAuthorized>
+                    <a href="/Login">ورود به سیستم</a>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+    </div>
+</div>
+@code {
+    [Parameter]
+    public long Id { get; set; }
+
+    public Comment Comment { get; set; } = new Comment();
+    public BlogDetailDTO blogDetail { get; set; }
+    [CascadingParameter]
+    public Task<AuthenticationState> authState { get; set; }
+    public User CurrentUser { get; set; }
+    public bool ShowLikeBtn { get; set; } = true;
+    public string ResultMessage { get; set; }
+    public string LikeMessage { get; set; }
+    public async Task LikeBlog()
+    {
+        ShowLikeBtn = false;
+        var result = await blogRepository.LikeBlog(Id);
+
+        if (result.Success)
+        {
+            LikeMessage = "انجام شد";
+        }
+        else
+        {
+            LikeMessage = "خطا";
+        }
+        ShowLikeBtn = true;
+    }
+    public async Task SendComment()
+    {
+        var result = await blogRepository.SendComment(Comment);
+        var auth = await authState;
+        if (result.Success)
+        {
+            Comment.User = new User
+                {
+                    Id = Convert.ToInt64(auth.User.Claims.Where(p => p.Type == "UserId").Select(p => p.Value).FirstOrDefault()),
+                    Name = auth.User.Claims.Where(p => p.Type == "Name").Select(p => p.Value).FirstOrDefault(),
+                    LastName = auth.User.Claims.Where(p => p.Type == "LastName").Select(p => p.Value).FirstOrDefault()
+                };
+            blogDetail.Blog.Comments.Add(Comment);
+            ResultMessage = "نظر شما با موفقیت ثبت شد";
+        }
+        else
+        {
+            ResultMessage = "در ثبت اطلاعات خطایی رخ داد";
+        }
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        await FetchBlog(Id);
+
+    }
+    public async Task FetchBlog(long Id)
+    {
+        var result = await blogRepository.GetBlogDetail(Id);
+        var auth = await authState;
+
+        Comment.BlogId = Id;
+        if (auth.User.Identity.IsAuthenticated)
+        {
+            Comment.UserId = Convert.ToInt64(auth.User.Claims.Where(p => p.Type == "UserId").Select(p => p.Value).FirstOrDefault());
+        }
+        if (result.Success)
+        {
+            if (result.Response != null)
+            {
+                blogDetail = result.Response;
+            }
+            else
+            {
+                //blogDetail = new BlogDetailDTO();
+                // Message -- 404
+            }
+        }
+        else
+        {
+            // Message
+        }
+    }
+}

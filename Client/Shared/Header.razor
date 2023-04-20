@@ -1,0 +1,108 @@
+﻿@inject IUserAuthService userService
+@inject NavigationManager navigationManager
+@inject AuthenticationStateProvider authStateProvider
+<header class="main-header header-style-1 mb-40">
+    <div class="top-bar pt-10 pb-10 background-white d-none d-md-block">
+        <div class="container">
+            <div class="row">
+                <div class="col-6 text-right">
+                    <div id="datetime" class="d-inline-block">
+                        <ul>
+                            <li>
+                                <img src="./assets/imgs/logo-2.png" width="130" />
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-6 text-left">
+                    <div class="vline-space d-inline-block"></div>
+                    <div class="user-account d-inline-block font-small">
+                        <a class="dropdown-toggle font-weight-bold" href="#" role="button" id="userMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-user"></i>
+                            <span>حساب کاربری</span>
+                        </a>
+                        <div id="userMenuDropdow" class="dropdown-menu dropdown-menu-right text-right shadow" aria-labelledby="userMenu">
+                            <a class="dropdown-item" href="/admin">پروفایل</a>
+                            <a class="dropdown-item" href="/admin/blogs/create">ثبت مقاله جدید</a>
+                            @if (auth != null && auth.User != null && auth.User.Identity.IsAuthenticated)
+                            {
+                                <a class="dropdown-item" href="/admin/blogs/list/@auth.User.Claims.Where(p => p.Type == "UserId").Select(p => p.Value).FirstOrDefault()">لیست مقاله های من</a>
+                            }
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" @onclick="Logout">
+                                خروج
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-bottom header-sticky background-white text-center">
+        <div class="mobile_menu d-lg-none d-block">
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <!-- Main-menu -->
+                    <div class="main-nav text-center d-none d-lg-block">
+                        <nav>
+                            <ul id="navigation" class="main-menu text-right " dir="rtl">
+                                <li>
+                                    <a href="/" class="font-weight-bold">خانه</a>
+                                </li>
+                                <li class="menu-item-has-children" dir="rtl">
+                                    <a class="font-weight-bold">مقاله ها</a>
+                                    @if (menuList != null)
+                                    {
+                                        <ul class="sub-menu">
+                                            @foreach (var item in menuList)
+                                            {
+                                                <li><a href="/Blog/Detail/@item.Id" class="text-right">@item.Title</a></li>
+
+                                            }
+                                        </ul>
+                                    }
+                                </li>
+
+
+                                <AuthorizeView>
+                                    <Authorized>
+                                        <li>
+                                            <a @onclick="Logout" class="font-weight-bold">خروج</a>
+                                        </li>
+                                    </Authorized>
+                                    <NotAuthorized>
+                                        <li>
+                                            <a href="/Register" class="font-weight-bold">ثبت نام</a>
+                                        </li>
+                                        <li>
+                                            <a href="/Login" class="font-weight-bold">ورود</a>
+
+                                        </li>
+                                    </NotAuthorized>
+                                </AuthorizeView>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+@code {
+    AuthenticationState auth { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        auth = await authStateProvider.GetAuthenticationStateAsync();
+
+    }
+    [Parameter]
+    public List<MenuDTO> menuList { get; set; }
+    private async Task Logout()
+    {
+        await userService.Logout();
+        navigationManager.NavigateTo("/Login");
+    }
+}

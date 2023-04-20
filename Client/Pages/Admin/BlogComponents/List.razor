@@ -1,0 +1,41 @@
+﻿@page "/admin/blogs/list"
+@page "/admin/blogs/list/{Id:long}"
+@inject IBlogRepository blogRepository
+@attribute [Authorize(Roles = "admin")]
+@layout AdminLayout
+@inject ICategoryRepository categoryRepository
+@inject NavigationManager navigation
+@inject AuthenticationStateProvider authStateProvider
+
+<div class="container mt-4 p-5 shadow">
+    <h3 class="text-right">لیست مقاله ها</h3>
+
+    <table class="table table-responsive mt-3 m-auto">
+        <tr>
+            <th>کد</th>
+            <th>عنوان</th>
+            <th>توضیحات</th>
+            <th>تنظیمات</th>
+        </tr>
+        @if (Blogs != null && Blogs.Count > 0)
+        {
+            foreach (Blog item in Blogs)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Title</td>
+                    <td>@item.Description</td>
+                    <td>
+                        <button class="btn btn-primary rounded-pill" @onclick="@(() => EditBlog(item.Id))">ویرایش</button>
+                        <button class="btn btn-danger rounded-pill" @onclick="@(() => DeleteBlog(item))">حذف</button>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td>لیست خالی است</td></tr>
+        }
+
+    </table>
+</div>
